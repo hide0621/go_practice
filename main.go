@@ -1,31 +1,25 @@
+//参照：https://dev.classmethod.jp/articles/golang-5/
+
 package main
 
 import (
 	"fmt"
 )
 
-/*
-type Stringer interface {
-	String() string
-}
-*/
-
-type Person struct {
-	Name, Country string
-}
-
-/*
-インターフェースで定義された関数をメソッドとして定義すると
-暗黙的にインターフェースを実装することになる
-*/
-
-func (p Person) String() string {
-	return fmt.Sprintf("%v is from %v", p.Name, p.Country)
+type User struct {
+	name string
+	age  int
 }
 
 func main() {
-	rs := Person{"John Doe", "USA"}
-	ab := Person{"Mark Collins", "United Kingdom"}
-	//String()メソッドが優先される
-	fmt.Printf("%s\n%s\n", rs, ab)
+
+	//Key:Valueで初期化。u4はポインタ型
+	u4 := &User{name: "taro", age: 30} // var u4 *User
+	fmt.Println("name:%s", u4.name)
+
+	//newで初期化.u5はポインタ型
+	u5 := new(User) // var u5 *User
+	u5.name = "taro"
+	fmt.Println("name:%s", u5.name)
+
 }
