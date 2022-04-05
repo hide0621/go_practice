@@ -2,49 +2,30 @@ package main
 
 import (
 	"fmt"
-	"math"
 )
 
-type Shape interface {
-	Perimeter() float64
-	Area() float64
+/*
+type Stringer interface {
+	String() string
+}
+*/
+
+type Person struct {
+	Name, Country string
 }
 
-type Square struct {
-	size float64
-}
+/*
+インターフェースで定義された関数をメソッドとして定義すると
+暗黙的にインターフェースを実装することになる
+*/
 
-func (s Square) Area() float64 {
-	return s.size * s.size
-}
-
-func (s Square) Perimeter() float64 {
-	return s.size * 4
-}
-
-type Circle struct {
-	radius float64
-}
-
-func (c Circle) Area() float64 {
-	return math.Pi * c.radius * c.radius
-}
-
-func (c Circle) Perimeter() float64 {
-	return 2 * math.Pi * c.radius
-}
-
-func printInformation(s Shape) {
-	fmt.Printf("%T\n", s)
-	fmt.Println("Area: ", s.Area())
-	fmt.Println("Perimeter:", s.Perimeter())
-	fmt.Println()
+func (p Person) String() string {
+	return fmt.Sprintf("%v is from %v", p.Name, p.Country)
 }
 
 func main() {
-	var s Shape = Square{3}
-	printInformation(s)
-
-	c := Circle{6}
-	printInformation(c)
+	rs := Person{"John Doe", "USA"}
+	ab := Person{"Mark Collins", "United Kingdom"}
+	//String()メソッドが優先される
+	fmt.Printf("%s\n%s\n", rs, ab)
 }
