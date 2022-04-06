@@ -9,7 +9,7 @@ import (
 
 //json
 
-//構造体からJSONへの変換
+//JSONから構造体へ変換
 
 type A struct{}
 
@@ -38,5 +38,19 @@ func main() {
 	}
 
 	fmt.Println(string(bs))
+
+	//-----------------------------------------
+
+	fmt.Printf("%T\n", bs)
+
+	//newで初期化.u2はポインタ型
+	u2 := new(User) //var u2 *User
+
+	//Unmarshal JSONを構造体に変換
+	if err := json.Unmarshal(bs, u2); err != nil {
+		fmt.Println("err", err)
+	}
+
+	fmt.Println(u2)
 
 }
