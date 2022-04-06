@@ -1,25 +1,42 @@
-//参照：https://dev.classmethod.jp/articles/golang-5/
-
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"log"
+	"time"
 )
 
+//json
+
+//構造体からJSONへの変換
+
+type A struct{}
+
 type User struct {
-	name string
-	age  int
+	//JSON形式で右記の小文字の方に変換
+	ID      int       `json:"id"`
+	Name    string    `json:"name"`
+	Email   string    `json:"email"`
+	Created time.Time `json:"created"`
+	A       *A        `json:"A,omitempty"` //構造体はポインタにするとomitemptyで消せる
 }
 
 func main() {
 
-	//Key:Valueで初期化。u4はポインタ型
-	u4 := &User{name: "taro", age: 30} // var u4 *User
-	fmt.Println("name:%s", u4.name)
+	//newで初期化.uはポインタ型
+	u := new(User) // var u *User
+	u.ID = 1
+	u.Name = "test"
+	u.Email = "example@example.com"
+	u.Created = time.Now()
 
-	//newで初期化.u5はポインタ型
-	u5 := new(User) // var u5 *User
-	u5.name = "taro"
-	fmt.Println("name:%s", u5.name)
+	//Marshal JSONに変換してbyteのスライスで受け取る
+	bs, err := json.Marshal(u)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Println(string(bs))
 
 }
