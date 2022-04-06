@@ -16,13 +16,20 @@ type GitHubResponse []struct {
 type customWriter struct{}
 
 func (w customWriter) Write(p []byte) (n int, err error) {
+	//byteのスライスで出力
+	//fmt.Println(p)
 	var resp GitHubResponse
-	//JSONを構造体のデータに変換して第二引数に格納、第二引数の構造体は構造体のアドレス
+	//JSONを構造体のデータ(string型)に変換して第二引数に格納、第二引数の構造体は構造体のアドレス
 	json.Unmarshal(p, &resp)
+	//構造体のスライスの形で出力
+	fmt.Println(resp)
 	for _, r := range resp {
 		fmt.Println(r.FullName)
 	}
-	return len(p), nil
+	//構造体のスライスの要素数を出力
+	fmt.Println(len(resp))
+	//fmt.Println(len(p))
+	return len(resp), nil //なんでもいいからreturnを返している?,ターミナルに出力されるのは26行目からのfor文の内容と30行目のみ
 }
 
 func main() {
