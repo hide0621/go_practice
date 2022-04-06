@@ -3,54 +3,37 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
-	"time"
+	"io"
+	"net/http"
+	"os"
 )
 
-//json
+//フィールド(FullName)がスライスになる
+type GitHubResponse []struct {
+	FullName string `json:"full_name"`
+}
 
-//JSONから構造体へ変換
+type customWriter struct{}
 
-type A struct{}
-
-type User struct {
-	//JSON形式で右記の小文字の方に変換
-	ID      int       `json:"id"`
-	Name    string    `json:"name"`
-	Email   string    `json:"email"`
-	Created time.Time `json:"created"`
-	A       *A        `json:"A,omitempty"` //構造体はポインタにするとomitemptyで消せる
+func (w customWriter) Write(p []byte) (n int, err error) {
+	var resp GitHubResponse
+	//JSONを構造体のデータに変換して第二引数に格納、第二引数の構造体は構造体のアドレス
+	json.Unmarshal(p, &resp)
+	for _, r := range resp {
+		fmt.Println(r.FullName)
+	}
+	return len(p), nil
 }
 
 func main() {
-
-	//newで初期化.uはポインタ型
-	u := new(User) // var u *User
-	u.ID = 1
-	u.Name = "test"
-	u.Email = "example@example.com"
-	u.Created = time.Now()
-
-	//Marshal JSONに変換してbyteのスライスで受け取る
-	bs, err := json.Marshal(u)
+	resp, err := http.Get("https://api.github.com/users/microsoft/repos?page=15&per_page=5")
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Error:", err)
+		os.Exit(1)
 	}
 
-	fmt.Println(string(bs))
+	writer := customWriter{}
 
-	//-----------------------------------------
-
-	fmt.Printf("%T\n", bs)
-
-	//newで初期化.u2はポインタ型
-	u2 := new(User) //var u2 *User
-
-	//Unmarshal JSONを構造体に変換
-	if err := json.Unmarshal(bs, u2); err != nil {
-		fmt.Println("err", err)
-	}
-
-	fmt.Println(u2)
-
+	//respに格納されたwebページのbody部分を読み込んでコピー（byte型のスライス）、writer経由でWriteメソッドを呼び出してコピーを引数pに渡してWriteメソッドの結果が返る
+	io.Copy(writer, resp.Body)
 }
