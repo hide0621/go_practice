@@ -7,32 +7,24 @@ import (
 	"net/http"
 )
 
-// cat型を定義
-type cat int
-
-// cat型のハンドラーを実装
-func (s cat) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "吾輩は猫である")
+//ハンドラ関数catの作成
+func cat(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "吾輩は猫である")
 }
 
-// dog型を定義
-type dog int
-
-// dog型のハンドラーを実装
-func (d dog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "吾輩は犬である")
+//ハンドラ関数dogの作成
+func dog(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintln(w, "吾輩は犬である")
 }
 
 func main() {
-	var c cat
-	var d dog
 
-	//マルチプレクサを作成
+	//マルチプレクサの作成
 	mux := http.NewServeMux()
 
-	// URLパスとハンドラを登録
-	mux.Handle("/cat", c)
-	mux.Handle("/dog", d)
-
+	// 第二引数にハンドラ関数を渡す
+	mux.HandleFunc("/cat", cat)
+	mux.HandleFunc("/dog", dog)
+	//webサーバーの立ち上げ
 	http.ListenAndServe(":8080", mux)
 }
