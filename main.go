@@ -1,32 +1,38 @@
+//参考　https://qiita.com/yNavS4Ki/items/5b7a0c7c41eb8da8f12a
+
 package main
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 )
 
-//独自型の定義
-type dollars float32
+// cat型を定義
+type cat int
 
-//独自型に紐づけられたStringメソッドを実装
-func (d dollars) String() string {
-	return fmt.Sprintf("$%.2f", d)
+// cat型のハンドラーを実装
+func (s cat) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "吾輩は猫である")
 }
 
-//構造体のマップ型で定義
-type database map[string]dollars
+// dog型を定義
+type dog int
 
-//http.Handler で使用できる ServeHTTP メソッドの実装
-func (db database) ServeHTTP(w http.ResponseWriter, req *http.Request) {
-	for item, price := range db {
-		fmt.Fprintf(w, "%s: %s\n", item, price)
-	}
+// dog型のハンドラーを実装
+func (d dog) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "吾輩は犬である")
 }
 
 func main() {
-	//databaseのオブジェクトを生成
-	db := database{"Go T-Shirt": 25, "Go Jacket": 55}
-	//第一引数のサーバーに対して第二引数のデータを出力する
-	log.Fatal(http.ListenAndServe("localhost:8000", db))
+	var c cat
+	var d dog
+
+	//マルチプレクサを作成
+	mux := http.NewServeMux()
+
+	// URLパスとハンドラを登録
+	mux.Handle("/cat", c)
+	mux.Handle("/dog", d)
+
+	http.ListenAndServe(":8080", mux)
 }
