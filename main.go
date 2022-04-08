@@ -15,18 +15,47 @@
 //バッファは一時的に記録する場所
 //バッファリングされたチャネルは、対応する受信側がいなくても決められた量までなら 値を送信することができる
 //バッファが詰まるとチャネルへの送信をブロックする
-//バッファが空の時はチャネルへの受信をブロックする
+//バッファが空の時はチャネルからの受信をブロックする
 
 package main
 
 import "fmt"
 
-func main() {
-	ch := make(chan int, 2)
-	ch <- 1
-	ch <- 2
-	//ch <- 3 //デッドロックが起こるようにする
+func send(ch chan string, message string) {
+	ch <- message
+}
 
-	fmt.Println(<-ch)
-	fmt.Println(<-ch)
+func main() {
+
+	size := 4
+	ch := make(chan string, size)
+	send(ch, "one")
+	send(ch, "two")
+	send(ch, "three")
+	send(ch, "four")
+	//fmt.Println(ch) //チャネルのアドレス
+	fmt.Println("All data sent to the channel ...")
+
+	for i := 0; i < size; i++ {
+		fmt.Println(<-ch)
+	}
+
+	fmt.Println("Done!")
+
+	/*
+		size := 2
+		ch := make(chan string, size)
+		send(ch, "one")
+		send(ch, "two")
+		send(ch, "three")
+		send(ch, "four")
+		send(ch, "All data sent to the channel ...")
+
+		for i := 0; i < 4; i++ {
+			fmt.Println(<-ch)
+		}
+
+		fmt.Println("Done!")
+	*/
+
 }
