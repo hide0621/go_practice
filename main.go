@@ -10,40 +10,39 @@
 //つまり、並行実行している関数から値を受信する。(あるgoroutineから別のgoroutineへ値を渡す。)
 //参考：https://qiita.com/taigamikami/items/fc798cdd6a4eaf9a7d5e
 
-//チャネルの方向について
-
-//チャネルは関数の引数にすることができる
-//チャネルを関数の引数として使うと送信か受信のどちらを意図しているか指定(わかりやすく)することができる。
-/*
-chan<- int // it's a channel to only send data
-<-chan int // it's a channel to only receive data
-*/
+//チャネルのselectについて
+//selectを利用することで、複数のチャネル操作を待つことができる。
+//受信したものから、画面に表示される。
 
 package main
 
-import "fmt"
-
-//チャネルへの送信専用
-func send(ch chan<- string, message string) {
-	fmt.Printf("Sending: %#v\n", message)
-	ch <- message
-}
-
-//チャネルからの受信先行
-func read(ch <-chan string) {
-	fmt.Printf("Receiving: %#v\n", <-ch)
-}
-
-/*
-//チャネルからの受信専用の関数でチャネルへのデータの送信をするとエラーになる
-func read(ch <-chan string) {
-    fmt.Printf("Receiving: %#v\n", <-ch)
-    ch <- "Bye!"
-}
-*/
+import (
+	"fmt"
+	"time"
+)
 
 func main() {
-	ch := make(chan string, 1)
-	send(ch, "Hello World!")
-	read(ch)
+
+	ch1 := make(chan string)
+	ch4 := make(chan string)
+
+	go func() {
+		time.Sleep(4 * time.Second)
+		ch4 <- "four"
+	}()
+
+	go func() {
+		time.Sleep(1 * time.Second)
+		ch1 <- "one"
+	}()
+
+	for i := 0; i < 2; i++ {
+		select {
+		case msg1 := <-ch1:
+			fmt.Println("received", msg1)
+		case msg4 := <-ch4:
+			fmt.Println("received", msg4)
+		}
+	}
+
 }
