@@ -10,54 +10,40 @@
 //つまり、並行実行している関数から値を受信する。(あるgoroutineから別のgoroutineへ値を渡す。)
 //参考：https://qiita.com/taigamikami/items/fc798cdd6a4eaf9a7d5e
 
-//チャネルのバッファについて
+//チャネルの方向について
 
-//バッファは一時的に記録する場所
-//バッファリングされたチャネルは、対応する受信側がいなくても決められた量までなら 値を送信することができる
-//バッファが詰まるとチャネルへの送信をブロックする
-//バッファが空の時はチャネルからの受信をブロックする
+//チャネルは関数の引数にすることができる
+//チャネルを関数の引数として使うと送信か受信のどちらを意図しているか指定(わかりやすく)することができる。
+/*
+chan<- int // it's a channel to only send data
+<-chan int // it's a channel to only receive data
+*/
 
 package main
 
 import "fmt"
 
-func send(ch chan string, message string) {
+//チャネルへの送信専用
+func send(ch chan<- string, message string) {
+	fmt.Printf("Sending: %#v\n", message)
 	ch <- message
 }
 
+//チャネルからの受信先行
+func read(ch <-chan string) {
+	fmt.Printf("Receiving: %#v\n", <-ch)
+}
+
+/*
+//チャネルからの受信専用の関数でチャネルへのデータの送信をするとエラーになる
+func read(ch <-chan string) {
+    fmt.Printf("Receiving: %#v\n", <-ch)
+    ch <- "Bye!"
+}
+*/
+
 func main() {
-
-	/*
-		size := 4
-		ch := make(chan string, size)
-		send(ch, "one")
-		send(ch, "two")
-		send(ch, "three")
-		send(ch, "four")
-		//fmt.Println(ch) //チャネルのアドレス
-		fmt.Println("All data sent to the channel ...")
-
-		for i := 0; i < size; i++ {
-			fmt.Println(<-ch)
-		}
-
-		fmt.Println("Done!")
-	*/
-
-	//ゴルーチンにした対象の処理はバッファのサイズ外
-	size := 2
-	ch := make(chan string, size)
-	send(ch, "one")
-	send(ch, "two")
-	//send(ch, "deadlock") //デッドロック発生
-	go send(ch, "three")
-	go send(ch, "four")
-	fmt.Println("All data sent to the channel ...")
-
-	for i := 0; i < 4; i++ {
-		fmt.Println(<-ch)
-	}
-
-	fmt.Println("Done!")
-
+	ch := make(chan string, 1)
+	send(ch, "Hello World!")
+	read(ch)
 }
